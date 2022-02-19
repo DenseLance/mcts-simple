@@ -1,16 +1,14 @@
 #!/usr/bin/python3
-import mcts_simple
 import setuptools
 
 # METADATA
 NAME = "mcts-simple"
-VERSION = mcts_simple.__version__
+VERSION = "0.0.3"
 AUTHOR = "Lance Chin"
 EMAIL = "denselance@gmail.com"
 DESCRIPTION = "Python package that helps to quickly implement MCTS to solve reinforcement learning problems."
 URL = "https://github.com/DenseLance/mcts-simple"
 REQUIRES_PYTHON = ">=3.7.0"
-VERSION = None
 
 # DEPENDENCIES
 REQUIRED = ["json-pickle", "tqdm"]
@@ -30,6 +28,7 @@ setuptools.setup(
     project_urls={
         "Bug Tracker": "https://github.com/DenseLance/mcts-simple/issues",
     },
+    license = "MIT",
     classifiers=[
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
@@ -40,6 +39,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
-    packages = setuptools.find_packages(where = "mcts_simple"),
+    packages = ["mcts_simple"],
     python_requires = REQUIRES_PYTHON,
 )

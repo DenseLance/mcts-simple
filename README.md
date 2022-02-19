@@ -65,7 +65,7 @@ Create a class for your game by inheriting the Game class from *mcts-simple*, an
 | :-----------------------: | :----------------------------------------------------------: |
 |    \_\_init\_\_(self)     |                   Initialises the object.                    |
 |       render(self)        | Returns a visual representation of the current state of the game. |
-|      get_state(self)      | Returns current state of the game.<br><br>Note:<ol><li>Provide a hashable state.</li><li>Ensure that the state provided during the game does not coincide with the state provided at the start of the game</li><li>Best to include the player that is taking an action this turn within the state.</li></ol> |
+|      get_state(self)      | Returns current state of the game.<br>Note:<ol><li>Provide a hashable state.</li><li>Ensure that the state provided during the game does not coincide with the state provided at the start of the game</li><li>Best to include the player that is taking an action this turn within the state.</li></ol> |
 |  number_of_players(self)  |                  Returns number of players.                  |
 |   current_player(self)    |    Returns the player that is taking an action this turn.    |
 |  possible_actions(self)   |       Returns the actions that can be taken this turn.       |
