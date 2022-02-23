@@ -3,7 +3,7 @@ import setuptools
 
 # METADATA
 NAME = "mcts-simple"
-VERSION = "0.0.3"
+VERSION = "0.1.2"
 AUTHOR = "Lance Chin"
 EMAIL = "denselance@gmail.com"
 DESCRIPTION = "Python package that helps to quickly implement MCTS to solve reinforcement learning problems."

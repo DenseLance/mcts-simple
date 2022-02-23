@@ -1,4 +1,3 @@
-import gc
 import jsonpickle
 from copy import deepcopy
 from tqdm.notebook import tqdm
@@ -125,6 +124,105 @@ class UCTNode(Node):
         else:
             return math.inf
 
+class OpenLoopNode(Node):
+    def __init__(self, action = None, player = None):
+        self.action = action
+        self.children = []
+
+        self.player = player # refers to player that is making the move this turn
+        self.is_expanded = False
+        self.outcome = False # Ongoing: False, Outcome present: True
+
+        self.w = 0.
+        self.n = 0
+
+    def get_action(self):
+        return self.action
+
+    def add_child_node(self, node: "OpenLoopNode") -> "OpenLoopNode":
+        children_actions = [child.action for child in self.children]
+        if node.action not in children_actions:
+            self.children.append(node)
+        else:
+            node = self.children[children_actions.index(node.action)]
+        return node
+
+    def add_child(self, action = None, player = None) -> "OpenLoopNode":
+        children_actions = [child.action for child in self.children]
+        if action not in children_actions:
+            node = OpenLoopNode(action, player)
+            self.children.append(node)
+        else:
+            node = self.children[children_actions.index(action)]
+        return node
+
+    def expand(self, actions: list, players: list) -> list:
+        self.is_expanded = True
+        return [self.add_child(actions[i], players[i]) for i in range(len(actions))]
+
+    def choose_random_child_node(self) -> "OpenLoopNode":
+        if not self.is_leaf_node():
+            return random.choice(self.children)
+
+    def choose_best_child_node(self) -> "OpenLoopNode":
+        if not self.is_leaf_node():
+            return max(self.children, key = lambda node: node.evaluate_node())
+
+    def get_child_by_state(self, next_state) -> "OpenLoopNode":
+        raise NotImplementedError("This method does not exist for OpenLoopNode.")
+
+    def get_child_by_action(self, next_action) -> "OpenLoopNode":
+        return [node for node in self.children if node.action == next_action][0]
+
+    def get_children_actions(self) -> list:
+        return [node.get_action() for node in self.children]
+
+class OpenLoopUCTNode(OpenLoopNode):
+    def __init__(self, action = None, player = None, c = math.sqrt(2)):
+        super().__init__(action, player)
+        
+        self.c = c
+
+    def add_child_node(self, node: "OpenLoopUCTNode") -> "OpenLoopUCTNode":
+        children_actions = [child.action for child in self.children]
+        if node.action not in children_actions:
+            self.children.append(node)
+        else:
+            node = self.children[children_actions.index(node.action)]
+        return node
+
+    def add_child(self, action = None, player = None) -> "OpenLoopUCTNode":
+        children_actions = [child.action for child in self.children]
+        if action not in children_actions:
+            node = OpenLoopUCTNode(action, player, self.c)
+            self.children.append(node)
+        else:
+            node = self.children[children_actions.index(action)]
+        return node
+
+    def choose_best_child_node(self) -> "OpenLoopUCTNode":
+        if not self.is_leaf_node():
+            return max(self.children, key = lambda node: node.evaluate_node(self))
+
+    def get_child_by_state(self, next_state) -> "OpenLoopUCTNode":
+        raise NotImplementedError("This method does not exist for OpenLoopUCTNode.")
+
+    def get_child_by_action(self, next_action) -> "OpenLoopUCTNode":
+        return [node for node in self.children if node.action == next_action][0]
+
+    def get_children_evaluations(self) -> list:
+        # We avoid the UCB1 formula as this method is only called after exploration is completed
+        # We can exploit and utilise a greedy policy instead
+        return [super(type(node), node).evaluate_node() if super(type(node), node).evaluate_node() != math.inf else 0. for node in self.children]
+##        return [node.evaluate_node(self) if node.evaluate_node(self) != math.inf else 0. for node in self.children]
+    
+    def evaluate_node(self, parent: "OpenLoopUCTNode") -> float:
+        # UCB1 formula
+        if self.n != 0:
+            return self.w / self.n + self.c * math.sqrt(math.log(parent.n) / self.n)
+        else:
+            return math.inf
+
 class MCTS:
     def __init__(self, game: "Game"):
         """
@@ -208,7 +306,6 @@ class MCTS:
             game.render()
 
         del game
-        gc.collect()
 
     def play_with_human(self, activation: str):
         activation_functions = {"best": lambda actions, scores: self.best(actions, scores),
@@ -239,7 +336,10 @@ class MCTS:
                     action = input("Input user action: ")
                 game.take_action(action)
                 if curr_node is not None and curr_node.has_children():
-                    curr_node = curr_node.get_child_by_state(game.get_state())
+                    try:
+                        curr_node = curr_node.get_child_by_state(game.get_state())
+                    except:
+                        curr_node = None
                 else:
                     curr_node = None
             else:
@@ -254,7 +354,6 @@ class MCTS:
             game.render()
 
         del game
-        gc.collect()
 
     def step(self):
         game = deepcopy(self.game)
@@ -264,7 +363,6 @@ class MCTS:
         self.backpropagation(path + extended_path, game)
         
         del path, extended_path, game
-        gc.collect()
 
     def run(self, iterations: int):
         if not isinstance(iterations, int):
@@ -359,3 +457,142 @@ class UCT(MCTS):
         # Transposition table is used for states that have been reached via different action orders
         # Arithmetic mean is used to evaluate a state
         self.nodes = {self.root.state: self.root}
+
+class OpenLoopMCTS(MCTS):
+    def __init__(self, game: "Game"):
+        """
+        Most of the time, a closed loop MCTS is sufficient in dealing with reinforcement learning
+        problems. However, when it comes to games that have non-deterministic or non-discrete
+        states, an open loop MCTS is required. Open loop MCTS would completely eliminate the need
+        for chance nodes. Transpositions will also not be considered since we would ignore the game
+        state entirely. Since the tree is now significantly smaller in an open loop MCTS, the
+        branching factor is also a lot smaller and evaluations may be less accurate. This also
+        means that results can converge at a faster rate.
+
+        This variant of MCTS can be used for deterministic games as well.
+
+        * Since there is no transposition table in an open loop MCTS, we generally cannot use it to
+        play from another state that is not the starting state.
+        """
+        if not isinstance(game, Game):
+            raise TypeError("Parameter 'game' does not belong to Game class.")
+
+        self.game = game
+        self.root = OpenLoopNode(None, self.game.current_player())
+
+    def self_play(self, activation: str):
+        activation_functions = {"best": lambda actions, scores: self.best(actions, scores),
+                                "linear": lambda actions, scores: self.linear(actions, scores),
+                                "tanh": lambda actions, scores: self.tanh(actions, scores),
+                                "softmax": lambda actions, scores: self.softmax(actions, scores)}
+        
+        if activation not in activation_functions:
+            raise ValueError("Could not interpret activation function identifier.")
+        
+        game = deepcopy(self.game)
+        curr_node = self.root
+        game.render()
+        while not game.has_outcome():
+            if curr_node is not None and curr_node.has_children(): # ignores actions that are possible but are unexplored if child nodes are present
+                action = activation_functions[activation](curr_node.get_children_actions(), curr_node.get_children_evaluations())
+                game.take_action(action)
+                curr_node = curr_node.get_child_by_action(action)
+            else:
+                action = random.choice(game.possible_actions())
+                game.take_action(action)
+                curr_node = None
+            game.render()
+
+        del game
+
+    def play_with_human(self, activation: str):
+        activation_functions = {"best": lambda actions, scores: self.best(actions, scores),
+                                "linear": lambda actions, scores: self.linear(actions, scores),
+                                "tanh": lambda actions, scores: self.tanh(actions, scores),
+                                "softmax": lambda actions, scores: self.softmax(actions, scores)}
+        
+        if activation not in activation_functions:
+            raise ValueError("Could not interpret activation function identifier.")
+        if self.game.number_of_players() <= 1:
+            raise ValueError("At least 2 players are needed to support human play.")
+        
+        game = deepcopy(self.game)
+        player_number = random.randint(1, game.number_of_players())
+        players = set()
+        player = None
+        curr_node = self.root
+        game.render()
+        while not game.has_outcome():
+            if player is None:
+                if curr_node.player is not None:
+                    players.add(curr_node.player)
+                if len(players) == player_number:
+                    player = curr_node.player
+                    del players
+            if player is not None and game.current_player() == player:
+                action = input("Input user action: ")
+                while action not in game.possible_actions():
+                    action = input("Input user action: ")
+                game.take_action(action)
+                if curr_node is not None and curr_node.has_children():
+                    try:
+                        curr_node = curr_node.get_child_by_action(action)
+                    except:
+                        curr_node = None
+                else:
+                    curr_node = None
+            else:
+                if curr_node is not None and curr_node.has_children(): # ignores actions that are possible but are unexplored if child nodes are present
+                    action = activation_functions[activation](curr_node.get_children_actions(), curr_node.get_children_evaluations())
+                    game.take_action(action)
+                    curr_node = curr_node.get_child_by_action(action)
+                else:
+                    action = random.choice(game.possible_actions())
+                    game.take_action(action)
+                    curr_node = None
+            game.render()
+
+        del game
+
+    def selection(self, node: "Node", game: "Game") -> (list, "Game"):
+        path = [node]
+        while not path[-1].is_leaf_node():
+            path.append(path[-1].choose_best_child_node())
+            game.take_action(path[-1].get_action())
+        return path, game
+
+    def expansion(self, node: "Node", game: "Game"):
+        if not game.has_outcome(): # leaf node but does not have outcome
+            actions, players = [], []
+            for action in game.possible_actions():
+                game.take_action(action)
+                actions.append(action)
+                players.append(game.current_player())
+                game.delete_last_action()
+            node.expand(actions, players)
+
+    def simulation(self, node: "Node", game: "Game") -> (list, "Game"):
+        extended_path = [node]
+        while not game.has_outcome():
+            action = random.choice(game.possible_actions())
+            game.take_action(action)
+            player = game.current_player()
+            extended_path.append(extended_path[-1].add_child(action, player))
+        return extended_path[1:], game
+
+    def _import(self, file: str):
+        with open(file, "r") as f:
+            game = self.game
+            self.__dict__.update(jsonpickle.decode(f.read(), keys = True).__dict__)
+            self.game = game
+            f.close()    
+
+class OpenLoopUCT(OpenLoopMCTS):
+    def __init__(self, game: "Game", c = math.sqrt(2)):
+        if not isinstance(game, Game):
+            raise TypeError("Parameter 'game' does not belong to Game class.")
+
+        self.c = c
+
+        self.game = game
+        self.root = OpenLoopUCTNode(None, self.game.current_player(), self.c)

@@ -15,7 +15,7 @@ class Game:
         1. Provide a hashable state.
         2. Ensure that the state provided during the game does not coincide with the state provided
            at the start of the game.
-        3. Best to include the player who is taking their action this turn within the state.
+        3. You might want to include the player who is taking their action this turn within the state.
                 
         RETURNS:
             current state of the game
