@@ -23,6 +23,7 @@ MCTS attempts to identify the most promising moves at each state by choosing ran
 
 * We assume that states are unique.
 * Root node's score is almost never evaluated, and at most only the number of visits "n" is used.
+* We assume the node with the highest q-value/win rate/reward is the most visited node.
 
 ### Upper Confidence bounds applied to Trees (UCT)
 
@@ -69,7 +70,7 @@ from mcts_simple import *
 
 #### Creating your own game environment
 
-For the progress bar to work best, use Jupyter Notebook or another platform that supports carriage return "/r". 
+For the progress bar to work best, use Jupyter Notebook or another platform that supports carriage return "/r".
 
 Create a class for your game by inheriting the Game class from *mcts-simple*, and define the following methods for your class:
 
@@ -77,7 +78,7 @@ Create a class for your game by inheriting the Game class from *mcts-simple*, an
 | :-----------------------: | :----------------------------------------------------------: |
 |    \_\_init\_\_(self)     |                   Initialises the object.                    |
 |       render(self)        | Returns a visual representation of the current state of the game. |
-|      get_state(self)      | Returns current state of the game.<br>Note:<ol><li>Provide a hashable state.</li><li>Ensure that the state provided during the game does not coincide with the state provided at the start of the game</li><li>You might want to include the player who is taking their action this turn within the state.</li></ol> |
+|      get_state(self)      | Returns current state of the game.<br>Note:<ol><li>Provide a hashable state.</li><li>Ensure that the state provided during the game does not coincide with the state provided at the start of the game.</li><li>You might want to include the player who is taking their action this turn within the state.</li></ol> |
 |  number_of_players(self)  |                  Returns number of players.                  |
 |   current_player(self)    |    Returns the player that is taking an action this turn.    |
 |  possible_actions(self)   |       Returns the actions that can be taken this turn.       |
@@ -112,6 +113,10 @@ mcts.self_play(activation = "best")
 
 If you have any issues in creating your environment, you can browse the source code or check out the examples provided <a href = "https://github.com/DenseLance/mcts-simple/tree/main/examples">here</a>.
 
+### Applications of MCTS
+
+MCTS is generally used to solve reinforcement learning problems such as games.
+
 ### Contributions
 
 I appreciate if you are able to contribute to this project, since currently I am the only one maintaining this module. This is also the first public Python package that I have written, so if you think that something is wrong with my code, you can open an issue and I'll try my best to resolve it!
@@ -122,7 +127,7 @@ There are also other variants of MCTS, so feel free to give some pointers to how
 
 - [x] Implement open loop MCTS.
 - [ ] Implement less memory and disk intensive method to export MCTS.
+- [ ] Implement more efficient simulations during rollouts.
 - [ ] Implement tree for MC-RAVE (Rapid Action Value Estimation for MCTS).
 - [ ] Implement example with DNN + MCTS (using a specialised evaluation formula) (e.g. chess).
-- [ ] Implement conversion from OpenAI-Gym environment to Game class in *mcts-simple*. (e.g. cartpole).
-- [ ] Implement alpha-beta pruning.
+- [x] Implement conversion from OpenAI-Gym environment to Game class in *mcts-simple*. (e.g. cartpole).
