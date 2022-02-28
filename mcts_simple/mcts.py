@@ -109,7 +109,7 @@ class UCTNode(Node):
             return max(self.children, key = lambda node: node.evaluate_node(self))
 
     def get_child_by_state(self, next_state) -> "UCTNode":
-            return [node for node in self.children if node.state == next_state][0]
+        return [node for node in self.children if node.state == next_state][0]
 
     def get_children_evaluations(self) -> list:
         # We avoid the UCB1 formula as this method is only called after exploration is completed
@@ -242,7 +242,8 @@ class MCTS:
         2. Expansion
             If the leaf node does not lead to an outcome to the episode (e.g. win/lose/
             draw), create at least one child node for that leaf node and choose one child
-            node from those created.
+            node from those created. In mcts-simple's implementation, the child node is only
+            chosen during simulation.
         3. Simulation
             Complete one episode starting from the chosen child node, where random actions
             are chosen for future states. An episode is only completed when an outcome can
@@ -254,6 +255,7 @@ class MCTS:
         * We assume that states are unique.
         * Root node's score is almost never evaluated, and at most only the number of visits
         "n" is used.
+        * We assume the node with the highest q-value/win rate/reward is the most visited node.
         """
         if not isinstance(game, Game):
             raise TypeError("Parameter 'game' does not belong to Game class.")
@@ -596,3 +598,6 @@ class OpenLoopUCT(OpenLoopMCTS):
 
         self.game = game
         self.root = OpenLoopUCTNode(None, self.game.current_player(), self.c)
+
+def get_action_space(): # required if PUCT is used
+    raise NotImplementedError

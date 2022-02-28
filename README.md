@@ -13,7 +13,7 @@ MCTS attempts to identify the most promising moves at each state by choosing ran
 1. Selection
     - Traverse through the search tree from the root node to a leaf node, while only selecting the most promising child nodes. Leaf node in this case refers to a node that has not yet gone through the expansion stage, rather than its traditional definition which is "a node without child nodes".
 2. Expansion
-    - If the leaf node does not lead to an outcome to the episode (e.g. win/lose/draw), create at least one child node for that leaf node and choose one child node from those created.
+    - If the leaf node does not lead to an outcome to the episode (e.g. win/lose/draw), create at least one child node for that leaf node and choose one child node from those created. In *mcts-simple*'s implementation, the child node is only chosen during simulation.
 3. Simulation
     - Complete one episode starting from the chosen child node, where random actions are chosen for future states. An episode is only completed when an outcome can be yielded from it.
 4. Backpropagation
