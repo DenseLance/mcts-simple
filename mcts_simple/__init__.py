@@ -1,4 +1,7 @@
-from .mcts import *
-from .game import *
+from .mcts.game import *
+from .mcts.mcts import *
+from .mcts.uct import *
+from .mcts.open_loop_mcts import *
+from .mcts.open_loop_uct import *
 
-__version__ = "0.1.2"
+__version__ = "1.0.0"
