@@ -3,15 +3,14 @@ import setuptools
 
 # METADATA
 NAME = "mcts-simple"
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 AUTHOR = "Lance Chin"
 EMAIL = "denselance@gmail.com"
 DESCRIPTION = "Python package that helps to quickly implement MCTS to solve reinforcement learning problems."
 URL = "https://github.com/DenseLance/mcts-simple"
 REQUIRES_PYTHON = ">=3.7.0"
 
-# DEPENDENCIES
-REQUIRED = ["tqdm", "gymnasium"]
+DEPENDENCIES = ["tqdm", "gymnasium"]
 
 with open("README.md", "r", encoding = "utf-8") as f:
     long_description = f.read()
@@ -42,4 +41,5 @@ setuptools.setup(
     ],
     packages = ["mcts_simple", "mcts_simple.mcts"],
     python_requires = REQUIRES_PYTHON,
+    install_requires = DEPENDENCIES
 )

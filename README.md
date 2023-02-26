@@ -4,7 +4,7 @@
 
 *mcts-simple* is a Python3 library that allows reinforcement learning problems to be solved easily with its implementations of Monte Carlo Tree Search.
 
-### Version Updates (v1.0.0)
+### Version Updates (v1.0)
 
 * Implementing a more lightweight, faster, and memory efficient version of MCTS.
   * More than 10x reduction in space and time complexity.
