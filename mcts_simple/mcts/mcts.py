@@ -40,7 +40,7 @@ class Node:
         return max(self.children, key = lambda action: self.children[action].eval(training))
 
     def choose_random_action(self) -> int:
-        return random.sample(self.children.keys(), 1)[0]
+        return random.sample(list(self.children), 1)[0]
 
 class MCTS:
     def __init__(self, game: Game, allow_transpositions: bool = True, training: bool = True):
