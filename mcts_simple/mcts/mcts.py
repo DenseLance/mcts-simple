@@ -65,6 +65,7 @@ class MCTS:
         if self.copied_game.has_outcome() is True:
             path[-1].has_outcome = True
             return path
+
         if path[-1].is_expanded is False:
             for action in self.copied_game.possible_actions():
                 expanded_game = deepcopy(self.copied_game)
