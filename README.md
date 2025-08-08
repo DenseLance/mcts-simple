@@ -1,6 +1,6 @@
 # mcts-simple
 
-[![Python](https://img.shields.io/pypi/pyversions/mcts-simple.svg?style=plastic)](https://badge.fury.io/py/mcts-simple) [![Version](https://img.shields.io/pypi/v/mcts-simple.svg?logo=pypi)](https://badge.fury.io/py/mcts-simple) [![GitHub license](https://img.shields.io/github/license/denselance/mcts-simple.svg)](https://github.com/DenseLance/mcts-simple/blob/main/LICENSE) [![PyPI downloads](https://img.shields.io/pypi/dm/mcts-simple.svg)](https://pypistats.org/packages/mcts-simple)
+[![Python](https://img.shields.io/pypi/pyversions/mcts-simple.svg?style=plastic)](https://badge.fury.io/py/mcts-simple) [![Version](https://img.shields.io/pypi/v/mcts-simple.svg?logo=pypi)](https://badge.fury.io/py/mcts-simple) [![GitHub license](https://img.shields.io/github/license/denselance/mcts-simple.svg)](https://github.com/DenseLance/mcts-simple/blob/main/LICENSE) [![PyPI Downloads](https://static.pepy.tech/badge/mcts-simple/month)](https://pepy.tech/projects/mcts-simple)
 
 *mcts-simple* is a Python3 library that implements Monte Carlo Tree Search and its variants to solve a host of problems, most commonly for reinforcement learning.
 
